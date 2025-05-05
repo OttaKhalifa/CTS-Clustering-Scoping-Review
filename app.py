@@ -179,6 +179,9 @@ if success:
                                 if properties:
                                     st.markdown("**Key properties**: " + ", ".join(properties))
 
+                                else : 
+                                    st.markdown("**Key properties**: None")
+
                             with col2:
                                 # Afficher les détails de l'article directement
                                 st.markdown("#### Method Details")
