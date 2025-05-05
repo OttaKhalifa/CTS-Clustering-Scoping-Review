@@ -11,7 +11,7 @@ st.set_page_config(
 )
 
 # Titre principal dans la zone principale
-st.title("Categorical Sequence Clustering Methods : a review")
+st.title("Categorical Sequence Clustering Methods : a scoping review")
 st.markdown("An interactive tool to find the best method for your categorical sequence clustering needs.")
 
 # Fonction pour formater l'année sans décimale
@@ -29,7 +29,7 @@ def format_year(year_value):
 @st.cache_data
 def load_data():
     try:
-        data = pd.read_excel('Data.xlsx')
+        data = pd.read_excel('data.xlsx')
         # Prétraitement de la colonne "Public Implementation"
         if 'Public Implementation' in data.columns:
             # Séparer "Yes (lien)" en "Yes" et le lien, et "No" reste tel quel
@@ -53,7 +53,7 @@ with st.sidebar:
     if not success:
         st.error(error_message)
     else:
-        st.success("Données chargées avec succès !")
+        st.success("Data are loaded !")
         
         st.subheader("Select Your Data Properties")
         
