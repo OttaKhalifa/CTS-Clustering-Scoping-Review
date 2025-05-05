@@ -11,8 +11,8 @@ st.set_page_config(
 )
 
 # Titre principal dans la zone principale
-st.title("Categorical Sequence Clustering Methods : a scoping review")
-st.markdown("An interactive tool to find the best method for your categorical sequence clustering needs.")
+st.title("Clustering Methods for Categorical Time Series : a scoping review")
+st.markdown("An interactive tool to find the best method for your Categorical Time Series clustering needs.")
 
 # Fonction pour formater l'année sans décimale
 def format_year(year_value):
