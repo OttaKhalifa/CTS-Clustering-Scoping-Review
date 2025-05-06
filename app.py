@@ -42,6 +42,90 @@ def load_data():
     except Exception as e:
         return pd.DataFrame(), False, f"Erreur lors du chargement des données : {e}"
 
+# Fonction pour afficher une méthode
+def display_method(row, index):
+    # Diviser l'affichage en deux colonnes
+    col1, col2 = st.columns([1, 3])
+    
+    # Déterminer le titre à utiliser
+    if 'Method Name' in row and pd.notna(row['Method Name']):
+        method_name = row['Method Name']
+    else:
+        # Fallback sur Original Article si Method Name n'existe pas ou est vide
+        method_name = row['Original Article'] if 'Original Article' in row else f"Method {index}"
+    
+    # Créer un titre avec icône appropriée pour cette méthode
+    icons = {
+    "Engineering": "⚙️",    
+    "Biology": "🧬",          # Double hélice ADN
+    "Social Science": "👥",        # Groupe de personnes
+    "Statistics": "📊",       # Graphique à barres
+    "Artificial Intelligence": "🤖", # Robot (représente l'IA)
+    "Healthcare": "🩺",           # Stéthoscope
+    "Computer Science": "💻", # Ordinateur
+    "Mathematics": "🔢",      # Chiffres
+    "Other": "📋"             # Document générique
+}
+    
+    # Déterminer l'icône basée sur la communauté ou la sous-famille si disponible
+    community = row['Community (standardized)'] if 'Community (standardized)' in row and pd.notna(row['Community (standardized)']) else "Other"
+    icon = next((icons[key] for key in icons if key in community), icons["Other"])
+    
+    # Afficher le titre principal en haut avec l'icône appropriée
+    st.markdown(f"## {icon} {method_name}")
+    
+    with col1:
+        # Informations concises et structurées dans la colonne de gauche
+        year_display = format_year(row['Year']) if 'Year' in row else "N/A"
+        community = row['Community (standardized)'] if 'Community (standardized)' in row and pd.notna(row['Community (standardized)']) else "Other"
+        subfamily = row['Subfamily (standardized)'] if 'Subfamily (standardized)' in row and pd.notna(row['Subfamily (standardized)']) else "None"
+        
+        # Informations compactes en colonne 1
+        st.markdown(f"**Year**: {year_display}")
+        st.markdown(f"**Community**: {community}")
+        st.markdown(f"**Subfamily**: {subfamily}")
+        
+        # Ajouter des indicateurs pour les propriétés clés
+        properties = []
+        for prop in ["Continuous time", "Covariates", "Various lengths", "Missing data", "Multivariate"]:
+            if prop in row and row[prop] == "Yes":
+                properties.append(prop)
+        
+        if properties:
+            st.markdown("**Key properties**: " + ", ".join(properties))
+        else: 
+            st.markdown("**Key properties**: None")
+
+    with col2:
+        # Afficher les détails de l'article directement
+        st.markdown(f"**Original Article**: {row['Original Article']}")
+        st.markdown(f"**Published in**: {row['Publication name'] if 'Publication name' in row else 'N/A'}")
+        
+        # Afficher la famille si elle existe et qu'on n'est pas dans un expander spécifique à la famille
+        if 'Method Family' in row and not st.session_state.get('in_family_expander', False):
+            st.markdown(f"**Family Method**: {row['Method Family']}")
+            
+        st.markdown(f"**Applied in**: {row['Article found'] if 'Article found' in row else 'N/A'}")
+        
+        # Afficher le type de données si disponible
+        if 'Data type (standardized)' in row and pd.notna(row['Data type (standardized)']):
+            st.markdown(f"**Data Type**: {row['Data type (standardized)']}")
+        
+        # Rendre les liens cliquables
+        if 'Link' in row and pd.notna(row['Link']):
+            st.markdown(f"**Article link**: [{row['Link']}]({row['Link']})")
+        
+        if 'Implementation Link' in row and pd.notna(row['Implementation Link']) and row['Implementation Link'] != "None":
+            st.markdown(f"**Implementation link**: [{row['Implementation Link']}]({row['Implementation Link']})")
+        elif 'Public Implementation Available' in row and row['Public Implementation Available'] == "No":
+            st.markdown("**Implementation**: Not publicly available")
+        
+        if 'Comments' in row and pd.notna(row['Comments']):
+            st.markdown(f"**Comments**: {row['Comments']}")
+    
+    # Ligne séparatrice entre les méthodes
+    st.markdown("---")
+
 # Charger les données
 data, success, error_message = load_data()
 
@@ -149,68 +233,15 @@ if success:
                     
                     # Utiliser un expander pour chaque famille de méthode, fermé par défaut
                     with st.expander(f"🔹 {family} Methods ({len(family_data)})", expanded=False):
+                        # Indiquer que nous sommes dans un expander de famille
+                        st.session_state.in_family_expander = True
+                        
                         # Afficher les articles de cette famille
                         for index, row in family_data.iterrows():
-                            # Diviser l'affichage en deux colonnes
-                            col1, col2 = st.columns([1, 3])
-                            
-                            # Déterminer le titre à utiliser
-                            if 'Method Name' in row and pd.notna(row['Method Name']):
-                                method_name = row['Method Name']
-                            else:
-                                # Fallback sur Original Article si Method Name n'existe pas ou est vide
-                                method_name = row['Original Article'] if 'Original Article' in row else f"Method {index}"
-                            
-                            with col1:
-                                # Information simplifiée (identifiant visuel)
-                                st.markdown(f"📄 **{method_name}**")
-                                
-                                # Ajouter année et communauté
-                                year_display = format_year(row['Year']) if 'Year' in row else "N/A"
-                                community = row['Community (standardized)'] if 'Community (standardized)' in row and pd.notna(row['Community (standardized)']) else "Other"
-                                
-                                # Ajouter la sous-famille
-                                subfamily = row['Subfamily (standardized)'] if 'Subfamily (standardized)' in row and pd.notna(row['Subfamily (standardized)']) else "None"
-                                
-                                # Informations compactes en colonne 1
-                                st.markdown(f"**Year**: {year_display}")
-                                st.markdown(f"**Community**: {community}")
-                                st.markdown(f"**Subfamily**: {subfamily}")
-                                
-                                # Ajouter des indicateurs pour les propriétés clés
-                                properties = []
-                                for prop in ["Continuous time", "Covariates", "Various lengths", "Missing data", "Multivariate"]:
-                                    if prop in row and row[prop] == "Yes":
-                                        properties.append(prop)
-                                
-                                if properties:
-                                    st.markdown("**Key properties**: " + ", ".join(properties))
-                                else: 
-                                    st.markdown("**Key properties**: None")
-                    
-                            with col2:
-                                # Utiliser le nom de la méthode comme en-tête principal
-                                st.markdown(f"### {method_name}")
-                                
-                                # Afficher les détails de l'article directement
-                                st.markdown(f"**Original Article**: {row['Original Article']}")
-                                st.markdown(f"**Published in**: {row['Publication name']}")
-                                st.markdown(f"**Applied in**: {row['Article found']}")
-                                
-                                # Rendre les liens cliquables
-                                if 'Link' in row and pd.notna(row['Link']):
-                                    st.markdown(f"**Article link**: [{row['Link']}]({row['Link']})")
-                                
-                                if 'Implementation Link' in row and pd.notna(row['Implementation Link']) and row['Implementation Link'] != "None":
-                                    st.markdown(f"**Implementation link**: [{row['Implementation Link']}]({row['Implementation Link']})")
-                                elif 'Public Implementation Available' in row and row['Public Implementation Available'] == "No":
-                                    st.markdown("**Implementation**: Not publicly available")
-                                
-                                if 'Comments' in row and pd.notna(row['Comments']):
-                                    st.markdown(f"**Comments**: {row['Comments']}")
-                            
-                            # Ligne séparatrice entre les méthodes
-                            st.markdown("---")
+                            display_method(row, index)
+                        
+                        # Réinitialiser l'indicateur
+                        st.session_state.in_family_expander = False
             else:
                 # Si la colonne Method Family n'existe pas
                 st.warning("La colonne 'Method Family' n'existe pas dans les données.")
@@ -218,68 +249,7 @@ if success:
                 st.subheader("Methods")
                 
                 for index, row in filtered_data.iterrows():
-                    col1, col2 = st.columns([1, 3])
-                    
-                    # Déterminer le titre à utiliser
-                    if 'Method Name' in row and pd.notna(row['Method Name']):
-                        method_name = row['Method Name']
-                    else:
-                        # Fallback sur Original Article si Method Name n'existe pas ou est vide
-                        method_name = row['Original Article'] if 'Original Article' in row else f"Method {index}"
-                    
-                    with col1:
-                        # Information simplifiée (identifiant visuel)
-                        st.markdown(f"📄 **{method_name}**")
-                        
-                        # Ajouter année et communauté
-                        year_display = format_year(row['Year']) if 'Year' in row else "N/A"
-                        community = row['Community (standardized)'] if 'Community (standardized)' in row and pd.notna(row['Community (standardized)']) else "Other"
-                        
-                        # Ajouter la sous-famille si elle existe
-                        subfamily = row['Subfamily (standardized)'] if 'Subfamily (standardized)' in row and pd.notna(row['Subfamily (standardized)']) else "None"
-                        
-                        # Informations compactes en colonne 1
-                        st.markdown(f"**Year**: {year_display}")
-                        st.markdown(f"**Community**: {community}")
-                        st.markdown(f"**Subfamily**: {subfamily}")
-                        
-                        # Ajouter des indicateurs pour les propriétés clés
-                        properties = []
-                        for prop in ["Continuous time", "Covariates", "Various lengths", "Missing data", "Multivariate"]:
-                            if prop in row and row[prop] == "Yes":
-                                properties.append(prop)
-                        
-                        if properties:
-                            st.markdown("**Key properties**: " + ", ".join(properties))
-                        else: 
-                            st.markdown("**Key properties**: None")
-
-                    with col2:
-                        # Utiliser le nom de la méthode comme en-tête principal
-                        st.markdown(f"### {method_name}")
-                        
-                        # Afficher les détails de l'article directement
-                        st.markdown(f"**Original Article**: {row['Original Article']}")
-                        st.markdown(f"**Published in**: {row['Publication name'] if 'Publication name' in row else 'N/A'}")
-                        if 'Method Family' in row:
-                            st.markdown(f"**Family Method**: {row['Method Family']}")
-                        st.markdown(f"**Applied in**: {row['Article found'] if 'Article found' in row else 'N/A'}")
-                        st.markdown(f"**Data Type**: {row['Data type (standardized)'] if 'Data type (standardized)' in row else 'N/A'}")
-                        
-                        # Rendre les liens cliquables
-                        if 'Link' in row and pd.notna(row['Link']):
-                            st.markdown(f"**Article link**: [{row['Link']}]({row['Link']})")
-                        
-                        if 'Implementation Link' in row and pd.notna(row['Implementation Link']) and row['Implementation Link'] != "None":
-                            st.markdown(f"**Implementation link**: [{row['Implementation Link']}]({row['Implementation Link']})")
-                        elif 'Public Implementation Available' in row and row['Public Implementation Available'] == "No":
-                            st.markdown("**Implementation**: Not publicly available")
-                        
-                        if 'Comments' in row and pd.notna(row['Comments']):
-                            st.markdown(f"**Comments**: {row['Comments']}")
-                    
-                    # Ligne séparatrice entre les méthodes
-                    st.markdown("---")
+                    display_method(row, index)
     
     with tab2:
         # Afficher le tableau de données brutes avec des options de tri
