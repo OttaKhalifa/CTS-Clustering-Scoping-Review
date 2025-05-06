@@ -154,21 +154,28 @@ if success:
                             # Diviser l'affichage en deux colonnes
                             col1, col2 = st.columns([1, 3])
                             
+                            # Déterminer le titre à utiliser
+                            if 'Method Name' in row and pd.notna(row['Method Name']):
+                                method_name = row['Method Name']
+                            else:
+                                # Fallback sur Original Article si Method Name n'existe pas ou est vide
+                                method_name = row['Original Article'] if 'Original Article' in row else f"Method {index}"
+                            
                             with col1:
-                                # Utiliser Method Name comme en-tête au lieu de Original Article
-                                if 'Method Name' in row and pd.notna(row['Method Name']):
-                                    method_title = row['Method Name']
-                                else:
-                                    # Fallback sur Original Article si Method Name n'existe pas ou est vide
-                                    method_title = row['Original Article'] if 'Original Article' in row else f"Method {index}"
+                                # Information simplifiée (identifiant visuel)
+                                st.markdown(f"📄 **{method_name}**")
                                 
-                                st.markdown(f"📄 **{method_title}**")
-                                
-                                # Ajouter année et communauté comme texte avec année formatée
+                                # Ajouter année et communauté
                                 year_display = format_year(row['Year']) if 'Year' in row else "N/A"
                                 community = row['Community (standardized)'] if 'Community (standardized)' in row and pd.notna(row['Community (standardized)']) else "Other"
                                 
-                                st.markdown(f"Year: **{year_display}** | Community: **{community}**")
+                                # Ajouter la sous-famille
+                                subfamily = row['Subfamily (standardized)'] if 'Subfamily (standardized)' in row and pd.notna(row['Subfamily (standardized)']) else "None"
+                                
+                                # Informations compactes en colonne 1
+                                st.markdown(f"**Year**: {year_display}")
+                                st.markdown(f"**Community**: {community}")
+                                st.markdown(f"**Subfamily**: {subfamily}")
                                 
                                 # Ajouter des indicateurs pour les propriétés clés
                                 properties = []
@@ -178,13 +185,14 @@ if success:
                                 
                                 if properties:
                                     st.markdown("**Key properties**: " + ", ".join(properties))
-
-                                else : 
+                                else: 
                                     st.markdown("**Key properties**: None")
-
+                    
                             with col2:
+                                # Utiliser le nom de la méthode comme en-tête principal
+                                st.markdown(f"### {method_name}")
+                                
                                 # Afficher les détails de l'article directement
-                                st.markdown("#### Method Details")
                                 st.markdown(f"**Original Article**: {row['Original Article']}")
                                 st.markdown(f"**Published in**: {row['Publication name']}")
                                 st.markdown(f"**Applied in**: {row['Article found']}")
