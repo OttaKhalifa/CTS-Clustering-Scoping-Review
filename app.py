@@ -44,9 +44,6 @@ def load_data():
 
 # Fonction pour afficher une méthode
 def display_method(row, index):
-    # Diviser l'affichage en deux colonnes
-    col1, col2 = st.columns([1, 3])
-    
     # Déterminer le titre à utiliser
     if 'Method Name' in row and pd.notna(row['Method Name']):
         method_name = row['Method Name']
@@ -54,30 +51,38 @@ def display_method(row, index):
         # Fallback sur Original Article si Method Name n'existe pas ou est vide
         method_name = row['Original Article'] if 'Original Article' in row else f"Method {index}"
     
-    # Créer un titre avec icône appropriée pour cette méthode
+    # Dictionnaire d'icônes pour différents domaines
     icons = {
-    "Engineering": "⚙️",    
-    "Biology": "🧬",          # Double hélice ADN
-    "Social Science": "👥",        # Groupe de personnes
-    "Statistics": "📊",       # Graphique à barres
-    "Artificial Intelligence": "🤖", # Robot (représente l'IA)
-    "Healthcare": "🩺",           # Stéthoscope
-    "Computer Science": "💻", # Ordinateur
-    "Mathematics": "🔢",      # Chiffres
-    "Other": "📋"             # Document générique
-}
+        "Engineering": "⚙️",    
+        "Biology": "🧬",          
+        "Social Science": "👥",  
+        "Statistics": "📊",       
+        "Artificial Intelligence": "🤖", 
+        "Healthcare": "🩺",      
+        "Computer Science": "💻", 
+        "Mathematics": "🔢",      
+        "Other": "📋"            
+    }
     
-    # Déterminer l'icône basée sur la communauté ou la sous-famille si disponible
+    # Déterminer l'icône basée sur la communauté
     community = row['Community (standardized)'] if 'Community (standardized)' in row and pd.notna(row['Community (standardized)']) else "Other"
-    icon = next((icons[key] for key in icons if key in community), icons["Other"])
     
-    # Afficher le titre principal en haut avec l'icône appropriée
+    # Recherche de l'icône correspondante
+    icon = icons["Other"]  # Icône par défaut
+    for key in icons:
+        if key in community:
+            icon = icons[key]
+            break
+    
+    # Afficher le titre principal en haut AVANT de créer les colonnes
     st.markdown(f"## {icon} {method_name}")
+    
+    # Maintenant, diviser l'affichage en deux colonnes
+    col1, col2 = st.columns([1, 3])
     
     with col1:
         # Informations concises et structurées dans la colonne de gauche
         year_display = format_year(row['Year']) if 'Year' in row else "N/A"
-        community = row['Community (standardized)'] if 'Community (standardized)' in row and pd.notna(row['Community (standardized)']) else "Other"
         subfamily = row['Subfamily (standardized)'] if 'Subfamily (standardized)' in row and pd.notna(row['Subfamily (standardized)']) else "None"
         
         # Informations compactes en colonne 1
@@ -185,6 +190,10 @@ with st.sidebar:
                 condition &= data["Data type (standardized)"].apply(
                     lambda x: selected_data_type in x if pd.notna(x) else False
                 )
+
+# Initialiser la variable session_state si elle n'existe pas
+if 'in_family_expander' not in st.session_state:
+    st.session_state.in_family_expander = False
 
 # MAIN CONTENT AREA
 # Filtrer les données selon les critères
