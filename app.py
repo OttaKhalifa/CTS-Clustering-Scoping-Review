@@ -220,25 +220,45 @@ if success:
                 for index, row in filtered_data.iterrows():
                     col1, col2 = st.columns([1, 3])
                     
+                    # Déterminer le titre à utiliser
+                    if 'Method Name' in row and pd.notna(row['Method Name']):
+                        method_name = row['Method Name']
+                    else:
+                        # Fallback sur Original Article si Method Name n'existe pas ou est vide
+                        method_name = row['Original Article'] if 'Original Article' in row else f"Method {index}"
+                    
                     with col1:
-                        # Utiliser Method Name comme en-tête au lieu de Original Article
-                        if 'Method Name' in row and pd.notna(row['Method Name']):
-                            method_title = row['Method Name']
-                        else:
-                            # Fallback sur Original Article si Method Name n'existe pas ou est vide
-                            method_title = row['Original Article'] if 'Original Article' in row else f"Method {index}"
+                        # Information simplifiée (identifiant visuel)
+                        st.markdown(f"📄 **{method_name}**")
                         
-                        st.markdown(f"📄 **{method_title}**")
-                        
-                        # Ajouter année et communauté comme texte avec année formatée
+                        # Ajouter année et communauté
                         year_display = format_year(row['Year']) if 'Year' in row else "N/A"
                         community = row['Community (standardized)'] if 'Community (standardized)' in row and pd.notna(row['Community (standardized)']) else "Other"
                         
-                        st.markdown(f"Year: **{year_display}** | Community: **{community}**")
+                        # Ajouter la sous-famille si elle existe
+                        subfamily = row['Subfamily (standardized)'] if 'Subfamily (standardized)' in row and pd.notna(row['Subfamily (standardized)']) else "None"
+                        
+                        # Informations compactes en colonne 1
+                        st.markdown(f"**Year**: {year_display}")
+                        st.markdown(f"**Community**: {community}")
+                        st.markdown(f"**Subfamily**: {subfamily}")
+                        
+                        # Ajouter des indicateurs pour les propriétés clés
+                        properties = []
+                        for prop in ["Continuous time", "Covariates", "Various lengths", "Missing data", "Multivariate"]:
+                            if prop in row and row[prop] == "Yes":
+                                properties.append(prop)
+                        
+                        if properties:
+                            st.markdown("**Key properties**: " + ", ".join(properties))
+                        else: 
+                            st.markdown("**Key properties**: None")
 
                     with col2:
+                        # Utiliser le nom de la méthode comme en-tête principal
+                        st.markdown(f"### {method_name}")
+                        
                         # Afficher les détails de l'article directement
-                        st.markdown("#### Method Details")
                         st.markdown(f"**Original Article**: {row['Original Article']}")
                         st.markdown(f"**Published in**: {row['Publication name'] if 'Publication name' in row else 'N/A'}")
                         if 'Method Family' in row:
@@ -252,6 +272,8 @@ if success:
                         
                         if 'Implementation Link' in row and pd.notna(row['Implementation Link']) and row['Implementation Link'] != "None":
                             st.markdown(f"**Implementation link**: [{row['Implementation Link']}]({row['Implementation Link']})")
+                        elif 'Public Implementation Available' in row and row['Public Implementation Available'] == "No":
+                            st.markdown("**Implementation**: Not publicly available")
                         
                         if 'Comments' in row and pd.notna(row['Comments']):
                             st.markdown(f"**Comments**: {row['Comments']}")
