@@ -84,11 +84,13 @@ def display_method(row, index):
         # Informations concises et structurées dans la colonne de gauche
         year_display = format_year(row['Year']) if 'Year' in row else "N/A"
         subfamily = row['Subfamily (standardized)'] if 'Subfamily (standardized)' in row and pd.notna(row['Subfamily (standardized)']) else "None"
+        main_algorithm = row['Main Algorithm (standardized)'] if 'Main Algorithm (standardized)' in row and pd.notna(row['Main Algorithm (standardized)']) else "None"
         
         # Informations compactes en colonne 1
         st.markdown(f"**Year**: {year_display}")
         st.markdown(f"**Community**: {community}")
         st.markdown(f"**Subfamily**: {subfamily}")
+        st.markdown(f"**Main Algorithm**: {main_algorithm}")
         
         # Ajouter des indicateurs pour les propriétés clés
         properties = []
@@ -100,6 +102,10 @@ def display_method(row, index):
             st.markdown("**Key properties**: " + ", ".join(properties))
         else: 
             st.markdown("**Key properties**: None")
+            
+        # Afficher le type de données si disponible
+        if 'Data type (standardized)' in row and pd.notna(row['Data type (standardized)']):
+            st.markdown(f"**Data Type**: {row['Data type (standardized)']}")
 
     with col2:
         # Afficher les détails de l'article directement
@@ -112,9 +118,7 @@ def display_method(row, index):
             
         st.markdown(f"**Applied in**: {row['Article found'] if 'Article found' in row else 'N/A'}")
         
-        # Afficher le type de données si disponible
-        if 'Data type (standardized)' in row and pd.notna(row['Data type (standardized)']):
-            st.markdown(f"**Data Type**: {row['Data type (standardized)']}")
+
         
         # Rendre les liens cliquables
         if 'Link' in row and pd.notna(row['Link']):
