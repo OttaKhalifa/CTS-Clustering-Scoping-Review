@@ -154,6 +154,7 @@ with st.sidebar:
             "Missing data": "Do you have missing data?",
             "Multivariate": "Are your time series multivariate?",
             "Public Implementation Available": "Do you need a public implementation?"
+            "Scalability index": = "Do you have a big volume of data? ( N \\times T_{max} \\times S > 10^7)"
         }
 
         # Initialiser la condition à True pour inclure toutes les données au départ
@@ -165,6 +166,10 @@ with st.sidebar:
             if col in data.columns:
                 # Ajouter une case à cocher
                 selected_filters[col] = st.checkbox(question)
+                # Cas spécial pour Scalability index
+                if col == "Scalability index":
+                # Filtrer pour les valeurs > 7
+                    condition &= data[col].apply(lambda x: pd.notna(x) and int(float(x)) >= 7 if isinstance(x, (int, float, str)) and str(x).replace('.', '', 1).isdigit() else False)
                 if selected_filters[col]:
                     # Si la case est cochée, appliquer le filtre pour "Yes"
                     condition &= (data[col] == "Yes")
