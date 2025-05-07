@@ -166,13 +166,14 @@ with st.sidebar:
             if col in data.columns:
                 # Ajouter une case à cocher
                 selected_filters[col] = st.checkbox(question)
-                # Cas spécial pour Scalability index
-                if col == "Scalability index":
-                # Filtrer pour les valeurs > 7
-                    condition &= data[col].apply(lambda x: pd.notna(x) and int(float(x)) >= 7 if isinstance(x, (int, float, str)) and str(x).replace('.', '', 1).isdigit() else False)
                 if selected_filters[col]:
-                    # Si la case est cochée, appliquer le filtre pour "Yes"
-                    condition &= (data[col] == "Yes")
+                    # Si la case est cochée, appliquer le filtre approprié
+                    if col == "Scalability index":
+                        # Filtrer pour les valeurs >= 7 seulement si la case est cochée
+                        condition &= data[col].apply(lambda x: pd.notna(x) and int(float(x)) >= 7 if isinstance(x, (int, float, str)) and str(x).replace('.', '', 1).isdigit() else False)
+                    else:
+                        # Filtre standard pour "Yes"
+                        condition &= (data[col] == "Yes")
 
         # Ajouter le filtre pour "Data type (standardized)"
         if "Data type (standardized)" in data.columns:
