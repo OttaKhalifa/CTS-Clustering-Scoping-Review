@@ -25,6 +25,21 @@ def format_year(year_value):
         # Si échec, retourner la valeur originale
         return str(year_value)
 
+# Fonction pour traiter le format de l'ordre de dépendance
+def process_dependency_order(value):
+    if isinstance(value, str) and value.isdigit():
+        return f"${value}$"
+    elif isinstance(value, int):
+        return f"${value}$"
+    elif isinstance(value, float) and value.is_integer():
+        return f"${int(value)}$"
+    elif value == "All":
+        return "$\\infty$"
+    elif value == "Fixed":
+        return "User"
+    else:
+        return value
+
 # Fonction pour charger les données
 @st.cache_data
 def load_data():
@@ -92,6 +107,13 @@ def display_method(row, index):
         st.markdown(f"**Subfamily**: {subfamily}")
         st.markdown(f"**Main Algorithm**: {main_algorithm}")
         
+        # Ajouter l'affichage de l'ordre de dépendance
+        if 'Dependency order' in row and pd.notna(row['Dependency order']):
+            formatted_dependency = process_dependency_order(row['Dependency order'])
+            st.markdown(f"**Dependency order**: {formatted_dependency}")
+        else:
+            st.markdown("**Dependency order**: N/A")
+        
         # Ajouter des indicateurs pour les propriétés clés
         properties = []
         for prop in ["Continuous time", "Covariates", "Various lengths", "Missing data", "Multivariate"]:
@@ -117,8 +139,6 @@ def display_method(row, index):
             st.markdown(f"**Family Method**: {row['Method Family']}")
             
         st.markdown(f"**Applied in**: {row['Article found'] if 'Article found' in row else 'N/A'}")
-        
-
         
         # Rendre les liens cliquables
         if 'Link' in row and pd.notna(row['Link']):
