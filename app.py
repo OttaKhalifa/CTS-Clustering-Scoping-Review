@@ -153,7 +153,7 @@ with st.sidebar:
             "Various lengths": "Are your sequences from various lengths?",
             "Missing data": "Do you have missing data?",
             "Multivariate": "Are your time series multivariate?",
-            "Public Implementation Available": "Do you need a public implementation?"
+            "Public Implementation Available": "Do you need a public implementation?", 
             "Scalability index": = "Do you have a big volume of data? ( N \\times T_{max} \\times S > 10^7)"
         }
 
