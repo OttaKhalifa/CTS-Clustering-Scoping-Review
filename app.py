@@ -314,7 +314,7 @@ if success:
                 sankey_html = generate_sankey_html(filtered_data)
                 
                 # Afficher le HTML dans Streamlit
-                components.html(sankey_html, height=400, scrolling=True)
+                components.html(sankey_html, height=1500, scrolling=True)
                 
             except Exception as e:
                 st.error(f"Error generating Sankey plot: {str(e)}")
