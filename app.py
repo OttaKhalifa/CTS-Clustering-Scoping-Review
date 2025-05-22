@@ -311,7 +311,7 @@ if success:
             
             # Générer le HTML du Sankey plot
             try:
-                sankey_html = generate_sankey_html(filtered_data)
+                sankey_html = generate_sankey_html(filtered_data, height = 800)
                 
                 # Afficher le HTML dans Streamlit
                 components.html(sankey_html, height=1500, scrolling=True)
