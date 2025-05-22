@@ -144,7 +144,8 @@ def plot_sankey(df, pad, thickness) :
     width = 1600
     #fig = go.Figure(data, layout = dict(height=500, width=1000))
     fig = go.Figure(data, layout = dict(height=height, width=width))
-    fig.show()
+    return(fig.to_html(include_plotlyjs='cdn'))
+    #fig.show()
 
     
     
