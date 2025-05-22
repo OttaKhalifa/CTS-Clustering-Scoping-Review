@@ -65,7 +65,7 @@ def generate_sankey_html(data):
     """
     Génère le HTML du Sankey plot à partir des données filtrées
     """
-    return plot_sankey(data, pad = 20, thickness = 20, height = 800)
+    return plot_sankey(data, pad = 20, thickness = 20, height = 1000)
 
 # Fonction pour afficher une méthode
 def display_method(row, index):
