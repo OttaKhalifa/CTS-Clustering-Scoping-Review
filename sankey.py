@@ -1,4 +1,16 @@
-
+import pandas as pd
+import plotly
+import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+from matplotlib.cm import get_cmap
+from matplotlib.patches import Patch
+import kaleido
+import plotly.io as pio
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPM
+import seaborn as sns
+import numpy as np
+df_all = pd.read_excel('Scoping_Review_st.xlsx', sheet_name='Important')
 
 pio.kaleido.scope.default_format = "svg"
 
