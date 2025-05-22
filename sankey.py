@@ -25,7 +25,7 @@ def unique(list1):
             unique_list.append(x)
     return unique_list
 
-def plot_sankey(df, pad=10, thickness=20):
+def plot_sankey(df, pad=10, thickness=20, height = 500, width = 1000):
     df_temp = df[['Community (standardized)', 'Data type (standardized)', 'Method Family', 'Subfamily (standardized)']].copy()
 
     df_temp['Data type (standardized)'] = df_temp['Data type (standardized)'].str.replace(' ', '')
@@ -107,5 +107,5 @@ def plot_sankey(df, pad=10, thickness=20):
     nodes = dict(label=label, pad=pad, thickness=thickness, color=color_all)
     data = go.Sankey(link=links, node=nodes, textfont={'size': 25, 'color': '#2A4B9B'})
 
-    fig = go.Figure(data, layout=dict(height=1000, width=1600))
+    fig = go.Figure(data, layout=dict(height=height, width=width))
     return fig.to_html(include_plotlyjs='cdn')
