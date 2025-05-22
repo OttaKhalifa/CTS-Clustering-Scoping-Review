@@ -3,3 +3,9 @@ openpyxl
 pandas
 numpy
 xlsxwriter
+plotly
+matplotlib
+kaleido
+svglib
+reportlab
+seaborn
