@@ -10,7 +10,6 @@ from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPM
 import seaborn as sns
 import numpy as np
-df_all = pd.read_excel('Scoping_Review_st.xlsx', sheet_name='Important')
 
 pio.kaleido.scope.default_format = "svg"
 
