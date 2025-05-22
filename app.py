@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import io  # Pour créer un fichier temporaire en mémoire
+import streamlit.components.v1 as components
+from sankey import plot_sankey
 
 # Configuration de la page
 st.set_page_config(
@@ -56,6 +58,14 @@ def load_data():
         return pd.DataFrame(), False, "Le fichier 'Data.xlsx' n'a pas été trouvé. Veuillez vérifier le chemin."
     except Exception as e:
         return pd.DataFrame(), False, f"Erreur lors du chargement des données : {e}"
+
+# Fonction pour générer le Sankey plot HTML
+@st.cache_data
+def generate_sankey_html(data):
+    """
+    Génère le HTML du Sankey plot à partir des données filtrées
+    """
+    return plot_sankey(data, pad = 20, thickness = 20)
 
 # Fonction pour afficher une méthode
 def display_method(row, index):
@@ -291,7 +301,21 @@ if success:
                     display_method(row, index)
     
     with tab2:
-        # Afficher le tableau de données brutes avec des options de tri
-        st.subheader("Raw Data Table")
-        st.write("Full dataset with all columns. Use the column headers to sort.")
-        st.dataframe(data)
+        # NOUVEAU: Onglet pour le Sankey plot
+        st.subheader("📊 Data Flow Visualization")
+        
+        if filtered_data.empty:
+            st.info("No data to visualize. Please adjust your filters.")
+        else:
+            st.markdown(f"**Sankey diagram based on {len(filtered_data)} filtered methods**")
+            
+            # Générer le HTML du Sankey plot
+            try:
+                sankey_html = generate_sankey_html(filtered_data)
+                
+                # Afficher le HTML dans Streamlit
+                components.html(sankey_html, height=600, scrolling=True)
+                
+            except Exception as e:
+                st.error(f"Error generating Sankey plot: {str(e)}")
+                st.info("Please check that your Sankey function is properly imported and configured.")
