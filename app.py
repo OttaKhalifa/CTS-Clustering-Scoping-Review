@@ -241,7 +241,7 @@ if success:
     filtered_data = data[condition]
     
     # Créer des onglets pour différentes vues
-    tab1, tab2 = st.tabs(["📋 Methods", "📊 Raw Data"])
+    tab1, tab2 = st.tabs(["📋 Methods", "📊 Sankey Plot"])
     
     with tab1:
         # Entête résumant les résultats
@@ -314,7 +314,7 @@ if success:
                 sankey_html = generate_sankey_html(filtered_data)
                 
                 # Afficher le HTML dans Streamlit
-                components.html(sankey_html, height=600, scrolling=True)
+                components.html(sankey_html, height=400, scrolling=True)
                 
             except Exception as e:
                 st.error(f"Error generating Sankey plot: {str(e)}")
