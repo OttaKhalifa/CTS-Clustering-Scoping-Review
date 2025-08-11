@@ -163,3 +163,142 @@ def display_method(row, index):
         if 'Implementation Link' in row and pd.notna(row['Implementation Link']):
             st.markdown(f"**Implementation link**: [{row['Implementation Link']}]({row['Implementation Link']})")
         elif row.get('Public Implementation Available') == "No":
+            st.markdown("**Implementation**: Not publicly available")
+
+        if 'Comments' in row and pd.notna(row['Comments']):
+            st.markdown(f"**Comments**: {row['Comments']}")
+
+    st.markdown("---")
+
+# =========================
+# App
+# =========================
+data, success, error_message = load_data()
+
+with st.sidebar:
+    st.header("Filters")
+
+    if not success:
+        st.error(error_message)
+    else:
+        st.success("Data are loaded !")
+
+        st.subheader("Select Your Data Properties")
+
+        criteria = {
+            "Continuous time": "Is the temporal scale **continuous**?",
+            "Covariates": "Are there time-invariant covariates?",
+            "Various lengths": "Are your sequences from various lengths?",
+            "Missing data": "Do you have missing data?",
+            "Multivariate": "Are your time series multivariate?",
+            "Public Implementation Available": "Do you need a public implementation?",
+            "Scalability index": "Do you have a big volume of data? $N \\times T_{max} \\times S > 10^7$"
+        }
+
+        condition = pd.Series([True] * len(data))
+        selected_filters = {}
+
+        for col, question in criteria.items():
+            if col in data.columns:
+                selected = st.checkbox(question)
+                selected_filters[col] = selected
+                if selected:
+                    if col == "Scalability index":
+                        condition &= data[col].apply(
+                            lambda x: pd.notna(x) and str(x).replace('.', '', 1).isdigit() and int(float(x)) >= 7
+                        )
+                    else:
+                        condition &= (data[col] == "Yes")
+
+        if "Data type (standardized)" in data.columns:
+            st.subheader("Data Type")
+            all_data_types = set(
+                word.strip()
+                for types in data["Data type (standardized)"].dropna()
+                for word in str(types).split(',')
+            )
+            data_type_options = ["No preference"] + sorted(all_data_types)
+
+            selected_data_type = st.selectbox(
+                "Select data type for your sequences:",
+                data_type_options
+            )
+
+            if selected_data_type != "No preference":
+                condition &= data["Data type (standardized)"].apply(
+                    lambda x: selected_data_type in x if pd.notna(x) else False
+                )
+
+# Initialiser l'état
+if 'in_family_expander' not in st.session_state:
+    st.session_state.in_family_expander = False
+
+if success:
+    filtered_data = data[condition]
+
+    tab1, tab2 = st.tabs(["📋 Methods", "📊 Sankey Plot"])
+
+    with tab1:
+        results_col1, results_col2 = st.columns([2, 1])
+        with results_col1:
+            st.subheader(f"{len(filtered_data)} methods found based on your criteria")
+
+        with results_col2:
+            if not filtered_data.empty:
+                output = io.BytesIO()
+                with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+                    filtered_data.to_excel(writer, index=False, sheet_name="Filtered Data")
+                output.seek(0)
+                st.download_button(
+                    label="📥 Download Results as Excel",
+                    data=output,
+                    file_name="filtered_methods.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                )
+
+        if filtered_data.empty:
+            st.info("No methods match your selected criteria. Try changing your filters.")
+        else:
+            if "Method Family" in filtered_data.columns:
+                method_families = filtered_data["Method Family"].dropna().unique()
+                for family in method_families:
+                    family_data = filtered_data[filtered_data["Method Family"] == family]
+                    with st.expander(f"🔹 {family} Methods ({len(family_data)})", expanded=False):
+                        st.session_state.in_family_expander = True
+                        for index, row in family_data.iterrows():
+                            display_method(row, index)
+                        st.session_state.in_family_expander = False
+            else:
+                st.warning("La colonne 'Method Family' n'existe pas dans les données.")
+                st.subheader("Methods")
+                for index, row in filtered_data.iterrows():
+                    display_method(row, index)
+
+    with tab2:
+        st.subheader("📊 Data Flow Visualization")
+
+        if filtered_data.empty:
+            st.info("No data to visualize. Please adjust your filters.")
+        else:
+            st.markdown(f"**Sankey diagram based on {len(filtered_data)} filtered methods**")
+
+            try:
+                sankey_html = generate_sankey_html(
+                    filtered_data,
+                    width=SANKEY_WIDTH,
+                    height=SANKEY_HEIGHT,
+                    pad=SANKEY_PAD,
+                    thickness=SANKEY_THICKNESS
+                )
+
+                # Affichage : largeur & hauteur alignées avec le HTML généré
+                components.html(
+                    sankey_html,
+                    height=SANKEY_HEIGHT,
+                    width=SANKEY_WIDTH,
+                    scrolling=True
+                )
+
+            except Exception as e:
+                st.error(f"Error generating Sankey plot: {str(e)}")
+                st.info("Please check that your Sankey function is properly imported and configured.")
