@@ -181,7 +181,7 @@ with st.sidebar:
     if not success:
         st.error(error_message)
     else:
-        st.success("Data are loaded !")
+        
 
         st.subheader("Select Your Data Properties")
 
