@@ -141,4 +141,25 @@ def display_method(row, index):
                 properties.append(prop)
 
         if properties:
-            st.markdown("**Key properties**:
+            st.markdown("**Key properties**: " + ", ".join(properties))
+        else:
+            st.markdown("**Key properties**: None")
+
+        if 'Data type (standardized)' in row and pd.notna(row['Data type (standardized)']):
+            st.markdown(f"**Data Type**: {row['Data type (standardized)']}")
+
+    with col2:
+        st.markdown(f"**Original Article**: {row.get('Original Article', 'N/A')}")
+        st.markdown(f"**Published in**: {row.get('Publication name', 'N/A')}")
+
+        if 'Method Family' in row and not st.session_state.get('in_family_expander', False):
+            st.markdown(f"**Family Method**: {row['Method Family']}")
+
+        st.markdown(f"**Applied in**: {row.get('Article found', 'N/A')}")
+
+        if 'Link' in row and pd.notna(row['Link']):
+            st.markdown(f"**Article link**: [{row['Link']}]({row['Link']})")
+
+        if 'Implementation Link' in row and pd.notna(row['Implementation Link']):
+            st.markdown(f"**Implementation link**: [{row['Implementation Link']}]({row['Implementation Link']})")
+        elif row.get('Public Implementation Available') == "No":
