@@ -6,6 +6,4 @@ xlsxwriter
 plotly
 matplotlib
 kaleido
-svglib
-reportlab
 seaborn
