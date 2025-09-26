@@ -6,4 +6,3 @@ xlsxwriter
 plotly
 matplotlib
 kaleido
-seaborn
