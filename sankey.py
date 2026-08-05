@@ -1,11 +1,6 @@
 import pandas as pd
-import plotly
 import plotly.graph_objects as go
-import kaleido
-import plotly.io as pio
 import numpy as np
-
-pio.kaleido.scope.default_format = "svg"
 
 
 def unique(list1):
